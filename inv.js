@@ -1,50 +1,40 @@
-function inverseMatrix(matrix) {
-    const n = matrix.length;
-    
-    // Create an identity matrix
+
+const inverseMatrix = (matrix)=> {
+    const n = matrix.length
     const identityMatrix = Array.from({ length: n }, (_, i) =>
       Array.from({ length: n }, (_, j) => (i === j ? 1 : 0))
-    );
-  
-    // Augment the original matrix with the identity matrix
-    const augmentedMatrix = matrix.map((row, rowIndex) =>
-      row.concat(identityMatrix[rowIndex])
-    );
-  
-    // Perform Gaussian elimination
+    )
+    const augmentedMatrix = matrix.map((el, index) =>
+      [...el,...identityMatrix[index]]
+    )
     for (let i = 0; i < n; i++) {
-      // Make the diagonal element 1
-      const diagonalElement = augmentedMatrix[i][i];
+      const diagonalElement = augmentedMatrix[i][i]
       for (let j = 0; j < 2 * n; j++) {
-        augmentedMatrix[i][j] /= diagonalElement;
+        augmentedMatrix[i][j] /= diagonalElement
       }
-  
-      // Make the other rows 0 in the current column
       for (let k = 0; k < n; k++) {
         if (k !== i) {
-          const factor = augmentedMatrix[k][i];
+          const fac = augmentedMatrix[k][i]
           for (let j = 0; j < 2 * n; j++) {
-            augmentedMatrix[k][j] -= factor * augmentedMatrix[i][j];
+            augmentedMatrix[k][j] -= fac * augmentedMatrix[i][j]
           }
         }
       }
     }
-  
-    // Extract the inverse matrix from the augmented matrix
-    const inverse = augmentedMatrix.map(row => row.slice(n));
-  
-    return inverse;
+    return augmentedMatrix.map(el => el.slice(n))
   }
   
-  // Example usage:
-  const inputMatrix = [
-    [4, 0, 0],
-    [0, -5, 0],
-    [0,0,10]
-  ];
-  
-  const result = inverseMatrix(inputMatrix);
-  
-  console.log("Inverse of the matrix:");
-  console.log(result);
-  
+  const cond = (H)=>{
+    const H_inverse = inverseMatrix(H)
+    const H_infinity_norm = Math.max(...(H.map((row)=>row.reduce((acc,el)=>acc+Math.abs(el),0))))
+    const H_inverse_infinity_norm = Math.max(...(H_inverse.map((row)=>row.reduce((acc,el)=>acc+Math.abs(el),0))))
+    return H_infinity_norm * H_inverse_infinity_norm
+  }
+
+  const matrix = [
+    [1,0.5,0.3333333333333333],
+    [0.5,0.3333333333333333,0.25],
+    [0.3333333333333333,0.25,0.2]
+  ]
+
+  console.log(cond(matrix))
