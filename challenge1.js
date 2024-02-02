@@ -148,7 +148,7 @@ function gaussElimination(A,n) {
       const r_infinity_norm = Math.max(...(r.map((element)=>Math.abs(element))))
       console.log(`\nr = [${r}]\n\nr_infinity_norm = ${r_infinity_norm}`)
 
-      // Calculate delta_x and delta_x infinity norm
+      // Calculate delta_x, delta_x infinity norm, percentage error, and cond_infinity(H)
       const deltaX = x_cap.map((element, index)=>element - x[index])
       const deltaX_infinity_norm = Math.max(...(deltaX.map((element)=>Math.abs(element))))
       console.log(`\ndelta_x = [${deltaX}]\n\ndeltaX_infinity_norm = ${deltaX_infinity_norm}\n\nPercentage error (deltaX_infinity_norm/x_infinity_norm) = ${deltaX_infinity_norm*100}\n`)
