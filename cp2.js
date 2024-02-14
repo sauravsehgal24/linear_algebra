@@ -10,7 +10,7 @@ const expandCopyMatrix = (matrix,n,n_trim)=> {
     return I_fix;
 }
 
-const  matrixMultiplication = (a, b, n_trim, H_flag)=> {
+const  matrix_multiplication = (a, b, n_trim, H_flag)=> {
     let result = [];
     const hard_array = b.map(innerArray => [...innerArray])
     for (let i = 0; i < a.length; i++) {
@@ -60,18 +60,21 @@ const householder = (matrix) =>{
             })
         })
         let vt_v = v.reduce((acc,el)=>Math.pow(el,2)+acc,0)
-        if(vt_v<1e-20)continue
+        if(Math.abs(vt_v)<1e-10)continue
         vt_v = 2/vt_v
         const H = I.map((row,row_index)=>{
             return row.map((el,el_index)=>{
                 return el-(vt_v * v_vt[row_index][el_index])
             })
         })
-        matrix = matrixMultiplication(H,matrix,column,true)
+        matrix = matrix_multiplication(H,matrix,column,true)
+        console.log(`\nMatrix After H${column+1} --------------------------------\n`)
+        console.log(matrix)
+        console.log("\n\n---------------------------------")
         const H_expand = expandCopyMatrix(H,matrix.length,column)
         H_array.push(H_expand)
         if(Q){
-            Q = matrixMultiplication(Q,H_expand,0,false)
+            Q = matrix_multiplication(Q,H_expand,0,false)
         }else{
             Q = H_expand
         }
@@ -79,9 +82,9 @@ const householder = (matrix) =>{
     let R;
     for(var i=2;i>=0;i--){
         if(!R)R=H_array[i]
-        else R = matrixMultiplication(R,H_array[i],0,false)
+        else R = matrix_multiplication(R,H_array[i],0,false)
     }
-    R = matrixMultiplication(R,hard_matrix,0,false)
+    R = matrix_multiplication(R,hard_matrix,0,false)
     return {Q,R}
 }
 
@@ -115,22 +118,34 @@ const backwardSubstitution = (matrix, b)=>{
 // MAIN
 (()=>{
     const A = [
+        [1, 0 , 0, 0],
+        [0, 1 , 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
         [1, -1 , 0, 0],
-        [1, 0, -1,0],
-        [1, 0, 0, -1],
-        [0, 1, -1, 0],
+        [1, 0 , -1, 0],
+        [1, 0 , 0, -1],
+        [0, 1, -1,0],
         [0, 1, 0, -1],
         [0, 0, 1, -1],
+        
     ]
     const b = [
-        [1.23],[4.45],[1.61],[3.21],[0.45],[-2.75]
+        [2.95],[1.74],[-1.45],[1.32],[1.23],[4.45],[1.61],[3.21],[0.45],[-2.75]
     ]
     const obj = householder(A,b)
     const Qt = transpose(obj.Q)
-    const R = obj.R.slice(0, A[0].length);
-    const Qt_b = matrixMultiplication(Qt,b,0,false)
-    const x = backwardSubstitution(R,Qt_b)
-    console.log(x)
+    const R = obj.R.slice(0, A[0].length)
+    for(var i=0;i<R.length;i++){
+        for (var j=0;j<R[0].length;j++){
+            if(Math.abs(R[i][j])<1e-10) R[i][j]=0
+        }
+    }
+    const Qt_b = matrix_multiplication(Qt,b,0,false)
+    const _b = Qt_b.map((row)=>row[0]).slice(0, A[0].length)
+    const x = backwardSubstitution(R,_b)
+    console.log("\n\n---------------------------------\nSolution for X and Delta_X \n---------------------------------\n")
+    x.forEach((el,index)=>{
+        console.log(`X_Cap${index+1} = ${el} | Measured X${index+1} = ${b[index]} | Delta X = ${el-b[index]}\n`)
+    })
 })()
-
-
